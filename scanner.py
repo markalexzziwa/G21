@@ -3,7 +3,7 @@ import os
 import re
 import json
 
-# Your Functions 
+# Read Function
 def read_file(filepath):
     with open(filepath, 'r') as f:
         return f.readlines()
@@ -53,7 +53,6 @@ def count_comments(lines):
 
         if stripped.startswith("#"):
             comment_count += 1
-            comment_count += line.count('#')
             
 
     return comment_count
@@ -66,7 +65,6 @@ class VariableValidator:
         snake_case_pattern = r"^[a-z0-9_]+$"
         
         for line_num, line in enumerate(raw_lines, 1):
-            # Exclude logical operations or comparison boundaries (==, !=, <=, >=)
             if "=" in line and "==" not in line and "!=" not in line and "<=" not in line and ">=" not in line:
                 left_side = line.split("=")[0].strip()
                 
@@ -85,41 +83,34 @@ class VariableValidator:
         return warnings
 
 
-# Main Execution (With Consolidated JSON Summary Output)
 if __name__ == "__main__":
 
-    # Check if judges provided a file via terminal argument, otherwise fallback
     if len(sys.argv) >= 2:
         filepath = sys.argv[1]
     else:
         filepath = "target_file.py"
 
-    # 1. Read file and run base line counter metrics
     lines = read_file(filepath)
     stats = count_lines(lines)
 
     # 2. Display initial analysis log layout
-    print(f"📁 Analyzing: {filepath}")
-    print(f"📊 Total lines:  {stats['total_lines']}")
-    print(f"📄 Blank lines:  {stats['blank_lines']}")
-    print(f"💻 Code lines:   {stats['code_lines']}")
-    print(f"💬 Comments:     {stats['total_lines'] - stats['blank_lines'] - stats['code_lines']}\n")
+    print(f"Analyzing: {filepath}")
+    print(f"Total lines:  {stats['total_lines']}")
+    print(f"Blank lines:  {stats['blank_lines']}")
+    print(f"Code lines:   {stats['code_lines']}")
+    print(f"Comments:     {stats['total_lines'] - stats['blank_lines'] - stats['code_lines']}\n")
 
-    # 3. Gather advanced statistics from the other functions
     complexity_counts = check_complexity(lines)
     total_comments = count_comments(lines)
     naming_warnings = VariableValidator.check_variables(lines)
 
-    # 4. Calculate Percentage Ratio and Health Score
     comment_ratio = round((total_comments / stats['total_lines']) * 100, 2) if stats['total_lines'] > 0 else 0.0
     
-    # Calculate performance metrics out of 100
     score = 100 - (len(naming_warnings) * 2)
     if sum(complexity_counts.values()) > 15:
         score -= 10
     health_score = max(0, min(score, 100))
 
-    # 5. Compile into the final JSON output format
     output_dictionary = {
         "total_lines": stats['total_lines'],
         "blank_lines": stats['blank_lines'],
@@ -131,5 +122,4 @@ if __name__ == "__main__":
         "health_score": health_score
     }
 
-    # Print the clean JSON dictionary as required by the tool specifications
     print(json.dumps(output_dictionary, indent=4))

@@ -1,9 +1,13 @@
 #ecommercesystem
 print("Welcome to our E-Commerce Store!")
+#username and password
 username = input("Please enter your name: ")
 password = input("Please enter your password: ")
 products =["TV", "laptop", "Subwoofer", "Fibre Cables", "Smartphone", "Headphones", "Speakers", "Router", "Printer", "Sony Camera"]
 locations = ["kampala", "masaka", "mukono", "gulu", "busia"]
+'''
+different location discounts
+'''
 locationdiscounts = {
     "kampala": 0.10,
     "masaka": 0.15,
@@ -20,6 +24,7 @@ elif username == "cashier" and password == "cashpwd123":
 else:
     print("Login failed! Invalid username or password.")
 
+#see products
 if username in ["admin", "customer"]:
     print("Here are the available products:")
     for product in products:
@@ -27,7 +32,7 @@ if username in ["admin", "customer"]:
     print("supported locations: ", ", ".join(locations))
 
 
-
+#user access admin and cashier
 if username in ["admin", "cashier"]:
     total_amount = float(input("Please enter the total amount of your purchase: "))
     shipping_cost = int(input("Please enter the shipping cost: "))
