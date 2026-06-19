@@ -1,4 +1,11 @@
-# Your functions
+import sys
+import os
+import re
+import json
+
+# =========================================================================
+# Your Functions (Kept in your exact style)
+# =========================================================================
 def read_file(filepath):
     with open(filepath, 'r') as f:
         return f.readlines()
@@ -9,79 +16,6 @@ def count_lines(lines):
     code = sum(1 for line in lines if line.strip() != "" and not line.strip().startswith("#"))
     return {"total_lines": total, "blank_lines": blank, "code_lines": code}
 
-# === CONNECT TO target_file.py ===
-filepath = "target_file.py"
-
-# Read and analyze
-lines = read_file(filepath)
-stats = count_lines(lines)
-
-# Display results
-print(f"📁 Analyzing: {filepath}")
-print(f"📊 Total lines:  {stats['total_lines']}")
-print(f"📄 Blank lines:  {stats['blank_lines']}")
-print(f"💻 Code lines:   {stats['code_lines']}")
-print(f"💬 Comments:     {stats['total_lines'] - stats['blank_lines'] - stats['code_lines']}")
-
-
-#Complexity Checker
-
-
-
-import re
-
-def read_file(filepath):
-
-    with open(filepath, 'r') as f:
-
-        return f.readlines()
-
-
-
-def check_complexity(lines):
-
-    keywords = ["if", "elif", "else", "for", "while", "print", "match", "case"]
-
-    counts = {k: 0 for k in keywords}
-
-    for line in lines:
-
-        stripped = line.strip()
-
-        if stripped.startswith("#"):
-
-            continue
-
-        for kw in keywords:
-
-            if re.search(rf"\b{kw}\b", stripped):
-
-                counts[kw] += 1
-
-    return counts
-
-# --- Run it ---
-
-if __name__ == "__main__":
-
-    filepath = "target_file.py"   # replace with the actual file judges give you
-
-    lines = read_file(filepath)
-
-    result = check_complexity(lines)
-
-    print(result)
-
-
-
-import re
-
-
-def read_file(filepath):
-    with open(filepath, "r") as f:
-        return f.readlines()
-
-
 def check_complexity(lines):
     keywords = ["if", "elif", "else", "for", "while", "print", "match", "case"]
     counts = {k: 0 for k in keywords}
@@ -97,7 +31,6 @@ def check_complexity(lines):
                 counts[kw] += 1
 
     return counts
-
 
 def count_comments(lines):
     comment_count = 0
@@ -124,14 +57,80 @@ def count_comments(lines):
 
     return comment_count
 
+class VariableValidator:
+    @staticmethod
+    def check_variables(raw_lines):
+        """Finds items assigned with = and ensures they use snake_case formatting."""
+        warnings = []
+        snake_case_pattern = r"^[a-z0-9_]+$"
+        
+        for line_num, line in enumerate(raw_lines, 1):
+            # Exclude logical operations or comparison boundaries (==, !=, <=, >=)
+            if "=" in line and "==" not in line and "!=" not in line and "<=" not in line and ">=" not in line:
+                left_side = line.split("=")[0].strip()
+                
+                # Extract words/variables to the left of the assignment operator
+                vars_found = re.findall(r"\b[a-zA-Z0-9_]+\b", left_side)
+                
+                for var in vars_found:
+                    # Filter out purely numeric entries or core structural words
+                    if var.isdigit() or var in ["self", "if", "for", "while", "return"]:
+                        continue
+                        
+                    # Check snake_case compliance rule
+                    if not re.match(snake_case_pattern, var):
+                        warnings.append(f"Line {line_num}: Variable '{var}' is not snake_case.")
+                        
+        return warnings
 
+
+# =========================================================================
+# Main Execution (With Consolidated JSON Summary Output)
+# =========================================================================
 if __name__ == "__main__":
-    filepath = "target_file.py"
-    lines = read_file(filepath)
 
-    print("Complexity counts:", check_complexity(lines))
-<<<<<<< HEAD
-    print("Number of comments:", count_comments(lines))
-=======
-    print("Number of comments:", count_comments(lines))
->>>>>>> 49cffca40108613a8c3c9da3f0bf35ddabc91a45
+    # Check if judges provided a file via terminal argument, otherwise fallback
+    if len(sys.argv) >= 2:
+        filepath = sys.argv[1]
+    else:
+        filepath = "target_file.py"
+
+    # 1. Read file and run base line counter metrics
+    lines = read_file(filepath)
+    stats = count_lines(lines)
+
+    # 2. Display initial analysis log layout
+    print(f"📁 Analyzing: {filepath}")
+    print(f"📊 Total lines:  {stats['total_lines']}")
+    print(f"📄 Blank lines:  {stats['blank_lines']}")
+    print(f"💻 Code lines:   {stats['code_lines']}")
+    print(f"💬 Comments:     {stats['total_lines'] - stats['blank_lines'] - stats['code_lines']}\n")
+
+    # 3. Gather advanced statistics from the other functions
+    complexity_counts = check_complexity(lines)
+    total_comments = count_comments(lines)
+    naming_warnings = VariableValidator.check_variables(lines)
+
+    # 4. Calculate Percentage Ratio and Health Score
+    comment_ratio = round((total_comments / stats['total_lines']) * 100, 2) if stats['total_lines'] > 0 else 0.0
+    
+    # Calculate performance metrics out of 100
+    score = 100 - (len(naming_warnings) * 2)
+    if sum(complexity_counts.values()) > 15:
+        score -= 10
+    health_score = max(0, min(score, 100))
+
+    # 5. Compile into the final JSON output format
+    output_dictionary = {
+        "total_lines": stats['total_lines'],
+        "blank_lines": stats['blank_lines'],
+        "lines_of_code": stats['code_lines'],
+        "comment_lines": total_comments,
+        "comment_ratio_pct": comment_ratio,
+        "complexity": complexity_counts,
+        "naming_warnings": naming_warnings,
+        "health_score": health_score
+    }
+
+    # Print the clean JSON dictionary as required by the tool specifications
+    print(json.dumps(output_dictionary, indent=4))
