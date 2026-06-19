@@ -130,4 +130,8 @@ if __name__ == "__main__":
     lines = read_file(filepath)
 
     print("Complexity counts:", check_complexity(lines))
+<<<<<<< HEAD
     print("Number of comments:", count_comments(lines))
+=======
+    print("Number of comments:", count_comments(lines))
+>>>>>>> 49cffca40108613a8c3c9da3f0bf35ddabc91a45
