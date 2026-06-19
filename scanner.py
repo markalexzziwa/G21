@@ -3,9 +3,7 @@ import os
 import re
 import json
 
-# =========================================================================
-# Your Functions (Kept in your exact style)
-# =========================================================================
+# Your Functions 
 def read_file(filepath):
     with open(filepath, 'r') as f:
         return f.readlines()
@@ -16,6 +14,7 @@ def count_lines(lines):
     code = sum(1 for line in lines if line.strip() != "" and not line.strip().startswith("#"))
     return {"total_lines": total, "blank_lines": blank, "code_lines": code}
 
+#complexity check
 def check_complexity(lines):
     keywords = ["if", "elif", "else", "for", "while", "print", "match", "case"]
     counts = {k: 0 for k in keywords}
@@ -54,6 +53,8 @@ def count_comments(lines):
 
         if stripped.startswith("#"):
             comment_count += 1
+            comment_count += line.count('#')
+            
 
     return comment_count
 
@@ -84,9 +85,7 @@ class VariableValidator:
         return warnings
 
 
-# =========================================================================
 # Main Execution (With Consolidated JSON Summary Output)
-# =========================================================================
 if __name__ == "__main__":
 
     # Check if judges provided a file via terminal argument, otherwise fallback

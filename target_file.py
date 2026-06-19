@@ -1,3 +1,4 @@
+#ecommercesystem
 print("Welcome to our E-Commerce Store!")
 username = input("Please enter your name: ")
 password = input("Please enter your password: ")
@@ -24,6 +25,8 @@ if username in ["admin", "customer"]:
     for product in products:
         print("-> " + product)
     print("supported locations: ", ", ".join(locations))
+
+
 
 if username in ["admin", "cashier"]:
     total_amount = float(input("Please enter the total amount of your purchase: "))
