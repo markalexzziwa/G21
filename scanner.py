@@ -1,3 +1,5 @@
+
+import re
 # Your functions
 def read_file(filepath):
     with open(filepath, 'r') as f:
@@ -28,13 +30,7 @@ print(f"💬 Comments:     {stats['total_lines'] - stats['blank_lines'] - stats[
 
 
 
-import re
 
-def read_file(filepath):
-
-    with open(filepath, 'r') as f:
-
-        return f.readlines()
 
 
 
